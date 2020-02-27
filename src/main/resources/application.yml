@@ -1,0 +1,15 @@
+# Tomcat
+server.port: 8080
+
+# Spring settings
+spring:
+    profiles.active: dev
+
+
+# Elasticsearch Config
+elasticsearch:
+    # host ip1,ip2,,,
+    host: {ES_HOST}
+    port: 9300
+    clusterName: elasticsearch
+    clientTransportSniff: false

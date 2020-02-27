@@ -1,0 +1,87 @@
+group 'com.es'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        if (project.hasProperty("maven")) {
+            if (maven.equals("maven.aliyun.com"))
+                maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+            else
+                mavenCentral()
+        } else {
+            mavenCentral()
+        }
+
+        dependencies {
+            classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.+")
+        }
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    if (project.hasProperty("maven")) {
+        if (maven.equals("maven.aliyun.com"))
+            maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        else
+            mavenCentral()
+    } else {
+        mavenCentral()
+    }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:1.5.+"){
+        exclude module: "spring-boot-starter-logging"
+    }
+    compile("org.springframework.boot:spring-boot-starter-log4j2:1.5.+")
+    compile("com.alibaba:fastjson:1.2.+")
+    compile("org.apache.poi:poi-ooxml:3.+")
+    compile("org.elasticsearch:elasticsearch:5.5.+")
+    compile("org.elasticsearch.client:transport:5.5.+")
+    testCompile("junit:junit:4.12")
+    testCompile("org.springframework.boot:spring-boot-starter-test:1.5.+")
+}
+
+task MarkGitVersion{
+    doLast{
+        def git = "git -C " + projectDir + " "
+        def branch = (git + "symbolic-ref --short HEAD").execute().text.trim()
+        def rev = (git + "rev-list --count HEAD").execute().text.trim()
+        def hash = (git + "rev-parse --short HEAD").execute().text.trim()
+        def hash160 = (git + "rev-parse HEAD").execute().text.trim()
+        println("\tMark Git Version: " + branch + "." + rev + "@" + hash)
+
+        def javaFile = new File(projectDir, "src/main/java/com/es/GitVer.jav_").text
+        javaFile = javaFile
+                .replace("\$branch\$", branch)
+                .replace("\$rev\$", rev)
+                .replace("\$hash\$", hash)
+                .replace("\$hash160\$", hash160)
+
+        def writer = new PrintWriter(new File(projectDir, "src/main/java/com/es/GitVer.java"))
+        writer.print(javaFile)
+        writer.close()
+    }
+}
+
+compileJava{
+    dependsOn MarkGitVersion
+    options.encoding = "utf-8"
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+test {
+    systemProperties System.getProperties()
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
+
+defaultTasks "assemble"

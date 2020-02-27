@@ -1,0 +1,49 @@
+/*******建立索引********/
+PUT http://112.124.3.139:9200/sample_v1
+{
+    "settings" : {
+        "index" : {
+            "max_result_window": "100000",
+            "number_of_shards": "5",
+            "number_of_replicas": "1"
+        }
+    }
+}
+
+/*******建立类型********/
+PUT http://112.124.3.139:9200/sample_v1/sample/_mapping
+{
+    "properties": {
+             "id": {
+                 "type": "string",
+                 "index": "not_analyzed"
+             },
+         	"deviceCode": {
+                 "type": "string",
+                 "index": "not_analyzed"
+             },
+ 			"tripNo": {
+                 "type": "integer"
+             },
+             "speed": {
+                 "type": "integer"
+             },
+ 			"distance": {
+                 "type": "integer"
+             },
+ 			"longitude": {
+                 "type": "double"
+             },
+ 			"latitude": {
+                 "type": "double"
+             },
+ 			"angle": {
+                 "type": "integer"
+             },
+ 			"collectTime": {
+                 "type": "date",
+                 "format": "yyyy-MM-dd HH:mm:ss"
+             }
+         }
+ }
+
